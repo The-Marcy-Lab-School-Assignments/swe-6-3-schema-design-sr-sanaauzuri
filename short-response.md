@@ -3,7 +3,7 @@
 Answer each question below. Write in complete sentences (3–5 per answer).
 
 ---
-( commit)
+
 
 ## Question 1
 
@@ -18,7 +18,19 @@ The table below stores data for a library's checkout system. Identify every norm
 
 **Your answer:**
 
----
+This flat table violates two normalization rules:
+**Normalization Rule #2: Atomic Values**: The `genres` column has many values in a cell, which means it isn’t atomic because each cell should store one value.
+**Normalization Rule #3: Primary Key Dependency**: Columns like `patron_name`, `patron_email`, `book_title`, etc. are not dependent on the primary key: `checkout_id`. For example, `patron_name` and `patron_email` are dependent on `patron_id` and not their`checkout_id`. This also causes data redundancy since Maya Patel’s name and email is repeated twice.
+
+To fix the schema, I’d separate the flat table into four tables.
+
+Table 1: A `patrons` table storing `patron_id`, `patron_name`, and `patron_email`
+
+Table 2: A `books` table storing `book_id`, `book_title`, `author_name`
+
+Table 3: A `checkouts` table storing `checkout_id`. Also storing `patron_id`, and `book_id` as foreign keys.
+
+Table 4: A `book_genres` association storing `book_id` and `genre` to handle the many to many relationship between books and genres.
 
 ## Question 2
 
