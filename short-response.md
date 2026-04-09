@@ -4,6 +4,7 @@ Answer each question below. Write in complete sentences (3–5 per answer).
 
 ---
 
+
 ## Question 1
 
 The table below stores data for a library's checkout system. Identify every normalization rule it violates and describe how you would fix the schema. You do not need to write SQL — describe the tables you would create and why.
@@ -17,7 +18,19 @@ The table below stores data for a library's checkout system. Identify every norm
 
 **Your answer:**
 
----
+This flat table violates two normalization rules:
+**Normalization Rule #2: Atomic Values**: The `genres` column has many values in a cell, which means it isn’t atomic because each cell should store one value.
+**Normalization Rule #3: Primary Key Dependency**: Columns like `patron_name`, `patron_email`, `book_title`, etc. are not dependent on the primary key: `checkout_id`. For example, `patron_name` and `patron_email` are dependent on `patron_id` and not their`checkout_id`. This also causes data redundancy since Maya Patel’s name and email is repeated twice.
+
+To fix the schema, I’d separate the flat table into four tables.
+
+**Table 1**: A `patrons` table storing `patron_id`, `patron_name`, and `patron_email` since a patron is dependent on `patron_id` and not `checkout_id`.
+
+**Table 2**: A `books` table storing `book_id`, `book_title`, `author_name` since a book is dependent on `book_id` and not `checkout_id` in the previous table.
+
+**Table 3**: A `checkouts` table storing `checkout_id`, and storing `patron_id` and `book_id` as foreign keys because the `checkouts` table only needs to know the  `patron_id`, and `book_id` not data such as the `patron_name` or `book_title`. This avoids the repeated data from the previous table.
+
+**Table 4**: A `book_genres` association storing `book_id` and `genre` to handle the many to many relationship between books and genres. This avoids storing non-atomic values like the previous table. 
 
 ## Question 2
 
@@ -25,7 +38,7 @@ Explain the difference between one-to-many relationships and many-to-many relati
 
 **Your answer:**
 
----
+A **one to many relationship** is when one row in a table can be referenced by many rows in another table. For example, a single venue can have many events, but a single event can only have one venue. In a relational database, this is represented by storing a foreign key like `venue_id` on the `events` table (the “many” side of the relationship) that references the `venues` table. A **many to many relationship** is when rows in each table can reference many rows in the other table. For example, a book can have many authors, and an author can have many books. In a relational database, this can be represented through an **association/bridge** table like `book_authors` that stores `book_id` and `author_id` as foreign keys. Each row in `book_authors` pairs a book to its author.
 
 ## Question 3
 
@@ -33,7 +46,12 @@ What is referential integrity? How does PostgreSQL enforce it, and why does this
 
 **Your answer:**
 
----
+**Referential integrity** honors that a foreign key must exist in it's referenced table. For example, if an `events` table has a `venue_id` column that stores a foreign key, referential integrity ensures that you can’t insert a `venue_id` that doesn’t exist in the `venues` table *(table that the foreign key references)*. PostgresSQL enforces this through the `REFERENCES` keyword, it will reject any insert of a foreign key that doesn’t exist in the referenced table. This enforcement determines the order to create and drop tables.
+
+**When you create tables**: The parent table has to be created first because a child table cannot reference a parent table that doesn’t exist yet
+
+**When you drop tables**: You reverse the order you created the tables in because dropping a parent table that a child still references throws a foreign key constraint error.
+
 
 ## Question 4
 
@@ -41,4 +59,4 @@ Why does an association table need a `UNIQUE (col1, col2)` constraint on its two
 
 **Your answer:**
 
----
+An association table needs a `UNIQUE (col1, col2)` constraint on its two foreign key columns to prevent the same pairing from repeating more than once.  This prevents the problem of **data redundancy** which violates a normalization rule of a relational database. Making each column individually `UNIQUE` doesn’t solve it because the constraint has to be on the combination of the values not each column itself.
