@@ -46,7 +46,10 @@ What is referential integrity? How does PostgreSQL enforce it, and why does this
 
 **Your answer:**
 
----
+**Referential integrity** honors that a foreign key must exist in a referenced table. For example, if an `events` table has a `venue_id` column that stores a foreign key, referential integrity ensures that you can’t insert a `venue_id` in the `events` table that doesn’t exist in the table the foreign key references. PostgresSQL enforces this through the `REFERENCES` keyword, it will reject any insert of a foreign key that doesn’t exist in the referenced table. This enforcement determines the order to create and drop tables.
+**When you create tables**: The parent table has to be created first because a child table cannot reference a parent table that doesn’t exist yet
+**When you drop tables**: You reverse the order you created the tables in because dropping a parent table that a child still references throws a foreign key constraint error.
+
 
 ## Question 4
 
